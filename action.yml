@@ -1,0 +1,55 @@
+name: 'sweeper'
+description: 'Cheery picks merged PRs to selected branches'
+branding:
+  icon: 'git-pull-request'
+  color: 'green'
+inputs:
+  branch:
+    description: 'remote branch whose merge commits should be swept (e.g. origin/master)'
+    required: false
+    default: 'auto'
+  github-pat:
+    description: 'GitHub Personal Acess Token (PAT)'
+    required: true
+    default: ''
+  project-name:
+    description: 'GitHub project with namespace (e.g. user/my-project)'
+    required: false
+    default: 'auto'
+  since:
+    description: 'start of time interval for sweeping PR (e.g. 1 day ago)'
+    required: false
+    default: '1 day ago'
+  strategy:
+    description: 'option if you want to cheery-pick the merge commit or merge it'
+    required: false
+    default: 'cherry-pick'
+  until:
+    description: 'end of time interval for sweeping PR (e.g. 1 hour ago)'
+    required: false
+    default: 'now'
+  run_local_checkout:
+    description: 'Run the local checkout of the action and not the main repo code'
+    required: false
+    default: 'false'
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        if [ "${{ inputs.run_local_checkout }}" == "true" ]; then
+          echo "WARNING running local checkout of the action !"
+          pip3 install -r requirements.txt
+          .  run-sweeper.sh local
+        else
+          pip3 install -r ${{ github.action_path }}/requirements.txt
+          ${{ github.action_path }}/run-sweeper.sh
+        fi
+      shell: bash
+      env:
+        THIS: ${{ github.action_path }}
+        BRANCH: ${{ inputs.branch }}
+        GITHUB_PAT : ${{ inputs.github-pat }}
+        PROJECT_NAME : ${{ inputs.project-name }}
+        SINCE: ${{ inputs.since }}
+        STRATEGY: ${{ inputs.strategy }}
+        UNTIL: ${{ inputs.until }}

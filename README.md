@@ -1,21 +1,21 @@
-# GitHub Action: aidasoft/sweeper
-[![python](https://github.com/AIDASoft/sweeper/actions/workflows/pylint.yml/badge.svg)](https://github.com/AIDASoft/sweeper/actions/workflows/pylint.yml)
+# GitHub Action: aidasoft/pr-sweeper
+[![python](https://github.com/AIDASoft/pr-sweeper/actions/workflows/pylint.yml/badge.svg)](https://github.com/AIDASoft/pr-sweeper/actions/workflows/pylint.yml)
 
 This GitHub Action cheery picks merged PRs to selected branches based on labels given to PRs.
 
 ## Instructions
 
 ### Prerequisites
-This action depends on the user to call the action `uses: actions/checkout@v2` before using `uses: aidasoft/sweeper@v1`. GitHub Actions currently do not support calling the action `checkout` from within `sweeper`, this needs to be done explicitly by the user. Furthermore there are two aspects that need to considered when configuring the `checkout` action.
+This action depends on the user to call the action `uses: actions/checkout@v2` before using `uses: aidasoft/pr-sweeper@v1`. GitHub Actions currently do not support calling the action `checkout` from within `pr-sweeper`, this needs to be done explicitly by the user. Furthermore there are two aspects that need to considered when configuring the `checkout` action.
 
-Firstly the number of commits to fetch. As the `sweeper` needs a local checkout of the repository to find merge commits, it is necessary that you setup `fetch-depth` to an appropriate value that covers the sweeping time range. If in doubt you can always set `fetch-depth: 0` and the `checkout` action will checkout the whole history e.g.:
+Firstly the number of commits to fetch. As the `pr-sweeper` needs a local checkout of the repository to find merge commits, it is necessary that you setup `fetch-depth` to an appropriate value that covers the sweeping time range. If in doubt you can always set `fetch-depth: 0` and the `checkout` action will checkout the whole history e.g.:
 ```yml
 - uses: actions/checkout@v2
   with:
     fetch-depth: 0
 ```
 
-Secondly the `sweeper` action offers two strategies what to do with merge commits, either you cherry-pick them to a new branch or you merge them to a new branch. Cherry-picking is currently not possible via the GitHub REST API (for discussion see [this topic](https://github.community/t/do-a-cherry-pick-via-the-api/14573)) therefore it is performed in the local checkout, hence you need to add to the `checkout` action the GitHub Personal Access Token (PAT) via `token`, to enable pushing back to the repository e.g.:
+Secondly the `pr-sweeper` action offers two strategies what to do with merge commits, either you cherry-pick them to a new branch or you merge them to a new branch. Cherry-picking is currently not possible via the GitHub REST API (for discussion see [this topic](https://github.community/t/do-a-cherry-pick-via-the-api/14573)) therefore it is performed in the local checkout, hence you need to add to the `checkout` action the GitHub Personal Access Token (PAT) via `token`, to enable pushing back to the repository e.g.:
 ```yml
 - uses: actions/checkout@v2
   with:
@@ -25,7 +25,7 @@ Secondly the `sweeper` action offers two strategies what to do with merge commit
 
 ### Example
 
-You can use this GitHub Action in a workflow in your own repository with `uses: aidasoft/sweeper@v1`.
+You can use this GitHub Action in a workflow in your own repository with `uses: aidasoft/pr-sweeper@v1`.
 
 A minimal job example for GitHub-hosted runners of type `ubuntu-latest`:
 ```yaml
@@ -37,11 +37,11 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.PAT }}
-    - uses: aidasoft/sweeper@v1
+    - uses: aidasoft/pr-sweeper@v1
       with:
         github-pat: ${{ secrets.PAT }}
 ```
-In this case the action will automatically resolve merge commits in the current branch in the last 24 hours and try to find the matching pull requests on GitHub. If the pull request has a label of the format `alsoTargeting:_target_branch_` the action will create a new branch in the repository based on `_target_branch_` and try to cheery-pick or merge the merge commit of the relevant PR to this newly created branch. If successful a PR with this newly created branch to `_target_branch_` will be created and it will receive the label `sweep:from _original_branch_` and the original PR will receive a label `sweep:done`. If at any step this operation something will fail, the original PR will receive in addition to `sweep:done` also `sweep:failed`. The label `sweep:done` only indicates that `sweeper` has run once over this PR not that it was successful.
+In this case the action will automatically resolve merge commits in the current branch in the last 24 hours and try to find the matching pull requests on GitHub. If the pull request has a label of the format `alsoTargeting:_target_branch_` the action will create a new branch in the repository based on `_target_branch_` and try to cheery-pick or merge the merge commit of the relevant PR to this newly created branch. If successful a PR with this newly created branch to `_target_branch_` will be created and it will receive the label `sweep:from _original_branch_` and the original PR will receive a label `sweep:done`. If at any step this operation something will fail, the original PR will receive in addition to `sweep:done` also `sweep:failed`. The label `sweep:done` only indicates that `pr-sweeper` has run once over this PR not that it was successful.
 
 ### Parameters
 The following parameters are supported:

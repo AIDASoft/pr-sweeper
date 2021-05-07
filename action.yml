@@ -1,4 +1,4 @@
-name: 'sweeper'
+name: 'pr-sweeper'
 description: 'Cheery picks merged PRs to selected branches'
 branding:
   icon: 'git-pull-request'
